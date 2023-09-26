@@ -1,83 +1,83 @@
-import { Component } from 'react'
-import { nanoid } from 'nanoid'
+import { useEffect, useMemo, useState } from 'react';
+import { nanoid } from 'nanoid';
 
-import Form from './Form'
-import ContactList from './ContactList'
-import Filter from './Filter'
-import { Section, FormWrapper, ListWrapper } from './styled/Parts.styled'
+import Form from './Form';
+import ContactList from './ContactList';
+import Filter from './Filter';
+import { Section, FormWrapper, ListWrapper } from './styled/Parts.styled';
 
+import React from 'react';
 
-class App extends Component {
-  state = {
-    contacts: [
-    {id: 'id-1', name: 'Rosie Simpson', number: '459-12-56'},
-    {id: 'id-2', name: 'Hermione Kline', number: '443-89-12'},
-    {id: 'id-3', name: 'Eden Clements', number: '645-17-79'},
-    {id: 'id-4', name: 'Annie Copeland', number: '227-91-26'},
-    ],
-    filter: null,
-  }
+const App = () => {
+  const INITAL = useMemo(()=>[
+    { id: 'id-1', contactName: 'Rosie Simpson', number: '459-12-56' },
+    { id: 'id-2', contactName: 'Hermione Kline', number: '443-89-12' },
+    { id: 'id-3', contactName: 'Eden Clements', number: '645-17-79' },
+    { id: 'id-4', contactName: 'Annie Copeland', number: '227-91-26' },
+  ], [])
 
-  componentDidMount = () => {
+  const [contacts, setContacts] = useState(INITAL);
+
+  const [filter, setFilter] = useState(null);
+
+  //side effects
+  useEffect(() => {
     const storageContacts = JSON.parse(localStorage.getItem('contacts'));
-    if (storageContacts) {
-      this.setState({contacts: storageContacts})
+    if (storageContacts.length) {
+      setContacts(storageContacts);
     }
-  }
+    console.log(storageContacts);
+  }, []);
 
-  componentDidUpdate = (prevProps, prevState) => {
-    if (prevState.contacts.length !== this.state.contacts.length) {
-localStorage.setItem('contacts', JSON.stringify(this.state.contacts))
-    }
-  }
-  
+  useEffect(() => {
+    if (contacts !== INITAL)
+      localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts, INITAL]);
 
-  createContact = (formData) => {
-    const alreadyExist = this.state.contacts.find(
-      (item) => item.name === formData.name
+  //create new contact
+  const createContact = (contactName, number) => {
+    const alreadyExist = contacts.find(item => item.contactName === contactName);
+    if (alreadyExist) return alert(`Contact '${contactName}' already exist`);
+
+    const newContact = {
+      id: nanoid(),
+      contactName,
+      number,
+    };
+
+    setContacts([newContact, ...contacts]);
+  };
+
+  // delete
+  const handleDelete = id => {
+    const newContacts = contacts.filter(one => one.id !== id);
+    setContacts(newContacts);
+  };
+
+  //filter
+  const filterContacts = filterQuery => {
+     console.log('FCCcc'.toLowerCase());
+    const filtered = contacts.filter(one =>
+      one.contactName.toLowerCase().includes(filterQuery.toLowerCase())
     );
-    if (alreadyExist) return alert(`Contact '${formData.name}' already exist`)
-    
-    const newContact = { 
-          ...formData,
-          id: nanoid(),
-    }
+    setFilter(filtered);
+  };
 
-    this.setState((prev) => ({
-      contacts: [
-        newContact,
-        ...prev.contacts, 
-      ]
-    }))
-  }
+  return (
+    <Section>
+      <FormWrapper>
+        <Form createContact={createContact} />
+      </FormWrapper>
+      <ListWrapper>
+        <Filter filterContacts={filterContacts} />
+        <ContactList
+          contacts={contacts}
+          handleDelete={handleDelete}
+          filter={filter}
+        />
+      </ListWrapper>
+    </Section>
+  );
+};
 
-  handleDelete = (id) => {
-    this.setState((prev) => ({
-      contacts: prev.contacts.filter((one) => one.id !== id),
-    }));
-  }
-
-	filterContacts = (filterQuery) => {
-		this.setState((prev) => ({
-			filter: prev.contacts.filter((one) =>
-				one.name.toLowerCase().includes(filterQuery.toLowerCase())
-			),
-		}))
-	}
-
-  render() {
-    return (
-      <Section>
-        <FormWrapper>
-          <Form createContact={this.createContact} />
-            </FormWrapper>
-          <ListWrapper>
-            <Filter filterContacts={this.filterContacts} />
-            <ContactList contacts={this.state.contacts} handleDelete={this.handleDelete} filter={ this.state.filter} />
-          </ListWrapper>
-      </Section>
-    )
-  }
-}
-
-export default App
+export default App;
