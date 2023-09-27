@@ -10,7 +10,7 @@ const Form = ({ createContact }) => {
   //change
   const handleChange = ({ target: { value, name } }) => {
     name === 'contactName' ? setContactName(value) : setNumber(value);
-    console.log(value, name);
+    //console.log(value, name);
   };
 
   //submit

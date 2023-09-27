@@ -9,12 +9,15 @@ import { Section, FormWrapper, ListWrapper } from './styled/Parts.styled';
 import React from 'react';
 
 const App = () => {
-  const INITAL = useMemo(()=>[
-    { id: 'id-1', contactName: 'Rosie Simpson', number: '459-12-56' },
-    { id: 'id-2', contactName: 'Hermione Kline', number: '443-89-12' },
-    { id: 'id-3', contactName: 'Eden Clements', number: '645-17-79' },
-    { id: 'id-4', contactName: 'Annie Copeland', number: '227-91-26' },
-  ], [])
+  const INITAL = useMemo(
+    () => [
+      { id: 'id-1', contactName: 'Rosie Simpson', number: '459-12-56' },
+      { id: 'id-2', contactName: 'Hermione Kline', number: '443-89-12' },
+      { id: 'id-3', contactName: 'Eden Clements', number: '645-17-79' },
+      { id: 'id-4', contactName: 'Annie Copeland', number: '227-91-26' },
+    ],
+    []
+  );
 
   const [contacts, setContacts] = useState(INITAL);
 
@@ -26,7 +29,6 @@ const App = () => {
     if (storageContacts.length) {
       setContacts(storageContacts);
     }
-    console.log(storageContacts);
   }, []);
 
   useEffect(() => {
@@ -36,7 +38,9 @@ const App = () => {
 
   //create new contact
   const createContact = (contactName, number) => {
-    const alreadyExist = contacts.find(item => item.contactName === contactName);
+    const alreadyExist = contacts.find(
+      item => item.contactName === contactName
+    );
     if (alreadyExist) return alert(`Contact '${contactName}' already exist`);
 
     const newContact = {
@@ -52,15 +56,19 @@ const App = () => {
   const handleDelete = id => {
     const newContacts = contacts.filter(one => one.id !== id);
     setContacts(newContacts);
+
+    if (filter) {const newFiltered = filter.filter(one => one.id !== id);
+    setFilter(newFiltered);}
   };
 
   //filter
   const filterContacts = filterQuery => {
-     console.log('FCCcc'.toLowerCase());
-    const filtered = contacts.filter(one =>
-      one.contactName.toLowerCase().includes(filterQuery.toLowerCase())
-    );
-    setFilter(filtered);
+    if (filterQuery.length) {
+      const filtered = contacts.filter(one =>
+        one.contactName.toLowerCase().includes(filterQuery.toLowerCase())
+      );
+      setFilter(filtered);
+    } else setFilter(null);
   };
 
   return (
