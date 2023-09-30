@@ -26,9 +26,7 @@ const App = () => {
   //side effects
   useEffect(() => {
     const storageContacts = JSON.parse(localStorage.getItem('contacts'));
-    if (storageContacts.length) {
-      setContacts(storageContacts);
-    }
+    storageContacts ?? setContacts(storageContacts);
   }, []);
 
   useEffect(() => {
